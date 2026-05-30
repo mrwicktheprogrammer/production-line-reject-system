@@ -15,9 +15,9 @@ void setup() {
     Serial.begin(115200);  // Start serial communication with computer
 
     // Attach servos to pins
-    baseServo.attach(9);      
-    shoulderServo.attach(6);  
-    elbowServo.attach(5);     
+    baseServo.attach(9);      //D9
+    shoulderServo.attach(6);  //D6
+    elbowServo.attach(5);     //D5
 
     // Fix shoulder and elbow at a flat height above the track
     shoulderServo.write(100); 
