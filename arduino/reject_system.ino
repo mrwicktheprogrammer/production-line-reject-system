@@ -1,58 +1,62 @@
-#include <Servo.h>
+#include <Servo.h>   // Library to control servo motors
 
+// Create servo objects
 Servo baseServo;
 Servo shoulderServo;
 Servo elbowServo;
 
-String command = "";
+String command = "";  // Store incoming text commands
 
-// High-speed static positions
-int homeBase = 140;      // Tucked safely completely away from the track
-int strikeBase = 70;     // Fast forward arc angle to swipe across the lane
+// Pre-set positions for the base servo
+int homeBase = 140;   // Safe position (arm tucked away)
+int strikeBase = 70;  // Position to swipe across the track
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(115200);  // Start serial communication with computer
 
+    // Attach servos to pins
     baseServo.attach(9);      
     shoulderServo.attach(6);  
     elbowServo.attach(5);     
 
-    // Lock the structural joints to a rigid, flat height over the track surface
+    // Fix shoulder and elbow at a flat height above the track
     shoulderServo.write(100); 
     elbowServo.write(90);     
     
-    // Move base to ready position
+    // Move base servo to home position
     baseServo.write(homeBase);
     
     Serial.println("[+] Industrial Reject System Online.");
 }
 
 void loop() {
+    // Check if there is data coming from computer
     while(Serial.available() > 0) {
-        char c = Serial.read();
-        if(c == '\n') {
-            processCommand(command);
-            command = ""; 
+        char c = Serial.read();  // Read one character
+        if(c == '\n') {          // End of command
+            processCommand(command);  // Handle the command
+            command = "";             // Reset command string
         } else {
-            command += c;
+            command += c;             // Add character to command
         }
     }
 }
 
 void processCommand(String cmd) {
+    // If the command starts with "REJECT"
     if(cmd.startsWith("REJECT")) {
-        executeHighSpeedSwipe();
+        executeHighSpeedSwipe();  // Run the swipe function
     }
 }
 
 void executeHighSpeedSwipe() {
     Serial.println("[!] SWIPE DEPLOYED!");
     
-    // 1. Instantly snap the base servo across the lane (no smooth damping, purely max speed)
+    // Move base servo quickly to strike position
     baseServo.write(strikeBase);
-    delay(350); // Small pause at peak extension to guarantee contact
+    delay(350);  // Wait a short time to make sure it hits
     
-    // 2. Snap immediately back to the home dock position to let the line keep running
+    // Move base servo back to home position
     baseServo.write(homeBase);
-    delay(300); 
+    delay(300);  // Wait before ready again
 }
